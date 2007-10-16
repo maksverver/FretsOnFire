@@ -183,6 +183,7 @@ class SongInfo(object):
 
     # [(score,stars,name)]
     scores += WebScores.fetchScores(self.songName, difficulty.id)
+    scores = dict.fromkeys(scores).keys()
     scores.sort(None, None, True)
     return scores[:5]
 

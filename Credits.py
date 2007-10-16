@@ -32,6 +32,7 @@ import MainMenu
 import Song
 import Version
 import Player
+import plugins
 
 class Element:
   """A basic element in the credits scroller."""
@@ -98,6 +99,8 @@ class Credits(Layer, KeyListener):
     self.engine.loadSvgDrawing(self, "background3", "cassette.svg")
     self.engine.boostBackgroundThreads(True)
 
+    self.plugins = plugins.load()
+
     nf = self.engine.data.font
     bf = self.engine.data.bigFont
     ns = 0.002
@@ -157,6 +160,24 @@ class Credits(Layer, KeyListener):
       space,
       Text(nf, ns, c1, "left",   _("Special thanks to:")),
       Text(nf, ns, c2, "right",  "Tutorial inspired by adam02"),
+      space,
+      Text(nf, ns, c1, "left",   _("Plugin Credits:")),
+      Text(nf, ns, c2, "right", "Plugin structure"),
+      Text(nf, bs, c2, "right",  "Maks Verver"),
+      space,
+    ]
+    
+    for p in self.plugins:
+      info = p.info()
+      if info.__class__ <> dict:
+      	continue
+      self.credits += [
+        Text(nf,ns,c2,"right", info.get('name', `p.__class__`)),
+	Text(nf,bs,c2,"right", info.get('author', "<author unknown>")),
+	space,
+      ]
+
+    self.credits += [
       space,
       Text(nf, ns, c1, "left",   _("Made with:")),
       Text(nf, ns, c2, "right",  "Python"),

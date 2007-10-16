@@ -33,6 +33,8 @@ import View
 import Audio
 import Stage
 import Settings
+import plugins
+import Log
 
 import math
 import pygame
@@ -89,6 +91,8 @@ class GuitarSceneClient(GuitarScene, SceneClient):
       (_("Settings"),          settingsMenu),
       (_("Quit to Main Menu"), self.quit),
     ], fadeScreen = True, onClose = self.resumeGame)
+
+    self.plugins = plugins.load()
 
     self.restartSong()
 
@@ -505,5 +509,17 @@ class GuitarSceneClient(GuitarScene, SceneClient):
               text = _(event.text)
               w, h = font.getStringSize(text)
               font.render(text, (.5 - w / 2, .67))
+
+      for p in self.plugins:
+        try:
+	  try:
+            p.render(self)
+	  except Exception, e:
+	    print e
+	    raise e
+	except:
+	  print 'Module "%s" sucks -- removed from plug-in list' % p.__class__
+	  self.plugins.remove(p)
+
     finally:
       self.engine.view.resetProjection()
