@@ -1,5 +1,6 @@
 from dircache import listdir
 import sys
+import Log
 
 # The plugin base class
 class Plugin:
@@ -27,7 +28,9 @@ def load():
         plugins.append(m.new())
       except Exception, e:
         print e
+	Log.error("Could not load module %s!" % mod)
+	Log.error(e)
       except:
-        print 'Could not load module %s!' % mod
+        Log.error('Could not load module %s!' % mod)
   sys.path = sys.path[1:]
   return plugins

@@ -175,7 +175,7 @@ class SongInfo(object):
   def setDelay(self, value):
     return self._set("delay", value)
   
-  def getHighscores(self, difficulty):
+  def getHighscores(self, difficulty, count=5):
     try:
       scores = list(self.highScores[difficulty])
     except KeyError:
@@ -185,7 +185,7 @@ class SongInfo(object):
     scores += WebScores.fetchScores(self.songName, difficulty.id)
     scores = dict.fromkeys(scores).keys()
     scores.sort(None, None, True)
-    return scores[:5]
+    return scores[:count]
 
 
   def uploadHighscores(self, url, songHash):

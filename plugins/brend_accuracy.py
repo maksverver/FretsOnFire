@@ -16,9 +16,6 @@ class new(Plugin):
     guitar = scene.guitar
     font   = scene.engine.data.font
 
-    w, h = font.getStringSize(" ")
-    y = .05 - h / 2
-    scale = 0.0013 
     t = max([ song.getPosition() - 2*guitar.lateMargin ] + [time for time,event in song.track.getAllEvents() if isinstance(event, Song.Note) and event.played])
     played = missed = 0
     for time,event in song.track.getAllEvents():
@@ -35,6 +32,9 @@ class new(Plugin):
     Theme.setSelectedColor();
     stars = int(5.0 * (accuracy + 0.05))
     msg = "%.2f%% %s" % (100.0*accuracy,unicode(Data.STAR2 * stars + Data.STAR1 * (5 - stars)))
+    scale = 0.0013
+    w,h = font.getStringSize(msg)
     tw, th = font.getStringSize(msg,scale)
+    y = .05 - h / 2
     font.render(msg, (1-tw-th, y + 2*h), scale = scale)
 

@@ -515,10 +515,10 @@ class GuitarSceneClient(GuitarScene, SceneClient):
 	  try:
             p.render(self)
 	  except Exception, e:
-	    print e
+	    Log.error(e)
 	    raise e
 	except:
-	  print 'Module "%s" sucks -- removed from plug-in list' % p.__class__
+	  Log.error('Module "%s" sucks -- removed from plug-in list' % p.__class__)
 	  self.plugins.remove(p)
 
     finally:
