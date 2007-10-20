@@ -109,7 +109,7 @@ if __name__ == "__main__":
       prof = True
 
   import psyco
-  psyco.full()
+  psyco.profile()
 
   if not prof:
     run()

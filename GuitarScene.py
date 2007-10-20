@@ -72,7 +72,7 @@ class GuitarSceneClient(GuitarScene, SceneClient):
     self.camera.origin    = (0, 3, -3)
 
     self.loadSettings()
-    self.engine.resource.load(self, "song",          lambda: loadSong(self.engine, songName, library = libraryName), onLoad = self.songLoaded)
+    self.engine.resource.load(self, "song", lambda: loadSong(self.engine, songName, library = libraryName), onLoad = self.songLoaded)
     
     self.stage            = Stage.Stage(self, self.engine.resource.fileName("stage.ini"))
     
@@ -91,8 +91,6 @@ class GuitarSceneClient(GuitarScene, SceneClient):
       (_("Settings"),          settingsMenu),
       (_("Quit to Main Menu"), self.quit),
     ], fadeScreen = True, onClose = self.resumeGame)
-
-    self.plugins = plugins.load()
 
     self.restartSong()
 
@@ -151,6 +149,9 @@ class GuitarSceneClient(GuitarScene, SceneClient):
     self.enteredCode     = []
     self.autoPlay        = False
     self.engine.collectGarbage()
+    #Restart plugins
+    self.plugins = plugins.load()
+    #Reset song speed
     
     if not self.song:
       return
