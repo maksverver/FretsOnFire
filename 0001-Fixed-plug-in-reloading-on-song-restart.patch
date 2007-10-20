@@ -1,0 +1,49 @@
+From 4e70451dd339a6562715019158c2932415f231ef Mon Sep 17 00:00:00 2001
+From: Marius van Voorden <marius@cpl27.student.utwente.nl>
+Date: Sun, 21 Oct 2007 00:00:36 +0200
+Subject: [PATCH] Fixed plug-in reloading on song restart.
+
+---
+ FretsOnFire.py |    2 +-
+ GuitarScene.py |    5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/FretsOnFire.py b/FretsOnFire.py
+index ad5f103..abaab05 100755
+--- a/FretsOnFire.py
++++ b/FretsOnFire.py
+@@ -109,7 +109,7 @@ if __name__ == "__main__":
+       prof = True
+ 
+   import psyco
+-  psyco.full()
++  psyco.profile()
+ 
+   if not prof:
+     run()
+diff --git a/GuitarScene.py b/GuitarScene.py
+index f1695e2..e791095 100644
+--- a/GuitarScene.py
++++ b/GuitarScene.py
+@@ -92,8 +92,6 @@ class GuitarSceneClient(GuitarScene, SceneClient):
+       (_("Quit to Main Menu"), self.quit),
+     ], fadeScreen = True, onClose = self.resumeGame)
+ 
+-    self.plugins = plugins.load()
+-
+     self.restartSong()
+ 
+   def pauseGame(self):
+@@ -151,6 +149,9 @@ class GuitarSceneClient(GuitarScene, SceneClient):
+     self.enteredCode     = []
+     self.autoPlay        = False
+     self.engine.collectGarbage()
++    #Restart plugins
++    self.plugins = plugins.load()
++    #Reset song speed
+     
+     if not self.song:
+       return
+-- 
+1.5.3.mingw.1.137.g2f346
+
