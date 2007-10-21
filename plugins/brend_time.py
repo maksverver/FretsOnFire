@@ -24,7 +24,7 @@ class new(Plugin):
     if left > 0:
       secleft = left % 60
       minleft = left / 60
-      msg = "-%d:%02d" % (minleft,secleft)
+      msg = "%d:%02d" % (minleft,secleft)
     else:
       msg = "Done"
     
