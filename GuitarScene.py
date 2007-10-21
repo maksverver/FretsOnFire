@@ -40,6 +40,8 @@ import math
 import pygame
 import random
 import os
+import sys
+from traceback import print_exception
 from OpenGL.GL import *
 
 class GuitarScene:
@@ -516,7 +518,8 @@ class GuitarSceneClient(GuitarScene, SceneClient):
 	  try:
             p.render(self)
 	  except Exception, e:
-	    Log.error(e)
+	    print_exception(*sys.exc_info())
+	    Log.error(Exception, e)
 	    raise e
 	except:
 	  Log.error('Module "%s" sucks -- removed from plug-in list' % p.__class__)
