@@ -6,6 +6,9 @@ import Log
 class Plugin:
   'Abstract base class for plug-ins'
 
+  def __init__(self):
+    pass
+
   def render(self, scene):
     '''Called with a GuitarScene argument while playing.'''
     pass
