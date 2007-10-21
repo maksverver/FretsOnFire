@@ -70,6 +70,7 @@ class GuitarSceneClient(GuitarScene, SceneClient):
     self.keyBurstPeriod   = 30
     self.camera.target    = (0, 0, 4)
     self.camera.origin    = (0, 3, -3)
+    self.paused						= False
 
     self.loadSettings()
     self.engine.resource.load(self, "song",          lambda: loadSong(self.engine, songName, library = libraryName), onLoad = self.songLoaded)
@@ -95,10 +96,12 @@ class GuitarSceneClient(GuitarScene, SceneClient):
     self.restartSong()
 
   def pauseGame(self):
+    self.paused = True
     if self.song:
       self.song.pause()
 
   def resumeGame(self):
+    self.paused = False
     self.loadSettings()
     if self.song:
       self.song.unpause()
@@ -192,7 +195,7 @@ class GuitarSceneClient(GuitarScene, SceneClient):
           self.doPick()
       
       self.song.update(ticks)
-      if self.countdown > 0:
+      if self.countdown > 0 and not self.paused:
         self.guitar.setBPM(self.song.bpm)
         self.countdown = max(self.countdown - ticks / self.song.period, 0)
         if not self.countdown:
