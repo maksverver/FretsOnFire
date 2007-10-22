@@ -489,7 +489,7 @@ class GuitarSceneClient(GuitarScene, SceneClient):
             glPopMatrix()
  
       # show the comments
-      if self.song and self.song.info.tutorial:
+      if self.song:
         glColor3f(1, 1, 1)
         pos = self.getSongPosition()
         for time, event in self.song.track.getEvents(pos - self.song.period * 2, pos + self.song.period * 4):
@@ -512,21 +512,30 @@ class GuitarSceneClient(GuitarScene, SceneClient):
             picture.draw()
           elif isinstance(event, TextEvent):
             if pos >= time and pos <= time + event.length:
-              text = _(event.text)
-              w, h = font.getStringSize(text)
-              font.render(text, (.5 - w / 2, .67))
+              text = event.text
+              i = text.find('$')
+              if i < 0:
+                a, b = "", text
+              else:
+                a, b = text[:i], text[i+1:]
+              w,  h  = font.getStringSize(a + b)
+              wa, ha = font.getStringSize(a)
+              Theme.setSelectedColor()
+              font.render(a, (.5 - w / 2, .67))
+              glColor3f(1, 1, 1)
+              font.render(b, (.5 - w / 2 + wa, .67))
 
       for p in self.plugins:
         try:
-	  try:
+          try:
             p.render(self)
-	  except Exception, e:
-	    print_exception(*sys.exc_info())
-	    Log.error(Exception, e)
-	    raise e
-	except:
-	  Log.error('Module "%s" sucks -- removed from plug-in list' % p.__class__)
-	  self.plugins.remove(p)
+          except Exception, e:
+            print_exception(*sys.exc_info())
+            Log.error(Exception, e)
+            raise e
+        except:
+          Log.error('Module "%s" sucks -- removed from plug-in list' % p.__class__)
+          self.plugins.remove(p)
 
     finally:
       self.engine.view.resetProjection()
