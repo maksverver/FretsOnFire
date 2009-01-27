@@ -150,7 +150,7 @@ class GuitarSceneClient(GuitarScene, SceneClient):
     self.autoPlay        = False
     self.engine.collectGarbage()
     #Restart plugins
-    self.plugins = plugins.load()
+    self.plugins = plugins.load(self.engine.config)
     #Reset song speed
     
     if not self.song:

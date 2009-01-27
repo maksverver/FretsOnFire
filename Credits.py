@@ -99,7 +99,7 @@ class Credits(Layer, KeyListener):
     self.engine.loadSvgDrawing(self, "background3", "cassette.svg")
     self.engine.boostBackgroundThreads(True)
 
-    self.plugins = plugins.load()
+    self.plugins = plugins.load(self.engine.config)
 
     nf = self.engine.data.font
     bf = self.engine.data.bigFont
