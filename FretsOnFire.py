@@ -43,32 +43,12 @@ import getopt
 import sys
 import os
 
-usage = """%(prog)s [options]
-Options:
-  --verbose, -v      Verbose messages
-""" % {"prog": sys.argv[0] }
-
-if __name__ == "__main__":
-  try:
-    opts, args = getopt.getopt(sys.argv[1:], "v", ["verbose"])
-  except getopt.GetoptError:
-    print usage
-    sys.exit(1)
-
-  for opt, arg in opts:
-    if opt in ["--verbose", "-v"]:
-      Log.quiet = False
+def run():
 
   while True:
     config = Config.load(Version.appName() + ".ini", setAsDefault = True)
     engine = GameEngine(config)
     engine.setStartupLayer(MainMenu(engine))
-
-    try:
-      import psyco
-      psyco.profile()
-    except:
-      Log.warn("Unable to enable psyco.")
 
     try:
       while engine.run():
@@ -98,3 +78,42 @@ if __name__ == "__main__":
     else:
       break
   engine.quit()
+
+
+usage = """%(prog)s [options]
+Options:
+  --verbose, -v      Verbose messages
+  --profile, -p      Generate call profile
+""" % {"prog": sys.argv[0] }
+
+
+if __name__ == "__main__":
+  prof = False
+  try:
+    opts, args = getopt.getopt(sys.argv[1:], "vp", ["verbose","profile"])
+  except getopt.GetoptError:
+    print usage
+    sys.exit(1)
+
+  for opt, arg in opts:
+    if opt in ["--verbose", "-v"]:
+      Log.quiet = False
+
+    if opt in ["--profile", "-p"]:
+      prof = True
+
+  import psyco
+  psyco.profile()
+
+  if not prof:
+    run()
+  else:
+    import hotshot, hotshot.stats
+    prof = hotshot.Profile("profile")
+    prof.runcall(run)
+    prof.close()
+    stats = hotshot.stats.load("profile")
+    stats.strip_dirs()
+    stats.sort_stats('cumtime', 'calls')
+    stats.print_stats('20')
+

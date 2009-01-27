@@ -34,6 +34,7 @@ import Cerealizer
 import urllib
 import Version
 import Theme
+import WebScores
 from Language import _
 
 DEFAULT_LIBRARY         = "songs"
@@ -55,7 +56,7 @@ class Difficulty:
     return self.text
 
 difficulties = {
-  SUPAEASY_DIFFICULTY: Difficulty(SUPAEASY_DIFFICULTY, _("Supaeasy")),
+  SUPAEASY_DIFFICULTY: Difficulty(SUPAEASY_DIFFICULTY, _("Arjan")),
   EASY_DIFFICULTY:     Difficulty(EASY_DIFFICULTY,     _("Easy")),
   MEDIUM_DIFFICULTY:   Difficulty(MEDIUM_DIFFICULTY,   _("Medium")),
   AMAZING_DIFFICULTY:  Difficulty(AMAZING_DIFFICULTY,  _("Amazing")),
@@ -173,13 +174,20 @@ class SongInfo(object):
     
   def setDelay(self, value):
     return self._set("delay", value)
-    
-  def getHighscores(self, difficulty):
+  
+  def getHighscores(self, difficulty, count=5):
     try:
-      return self.highScores[difficulty]
+      scores = list(self.highScores[difficulty])
     except KeyError:
-      return []
-      
+      scores = []
+
+    # [(score,stars,name)]
+    scores += WebScores.fetchScores(self.songName, difficulty.id)
+    scores = dict.fromkeys(scores).keys()
+    scores.sort(None, None, True)
+    return scores[:count]
+
+
   def uploadHighscores(self, url, songHash):
     try:
       d = {
@@ -196,12 +204,13 @@ class SongInfo(object):
       return False
     return True
   
-  def addHighscore(self, difficulty, score, stars, name):
+  def addHighscore(self, difficulty, score, stars, name, allowDupes = True):
     if not difficulty in self.highScores:
       self.highScores[difficulty] = []
-    self.highScores[difficulty].append((score, stars, name))
-    self.highScores[difficulty].sort(lambda a, b: {True: -1, False: 1}[a[0] > b[0]])
-    self.highScores[difficulty] = self.highScores[difficulty][:5]
+    if allowDupes or (score, stars, name) not in self.highScores[difficulty]:
+      self.highScores[difficulty].append((score, stars, name))
+      self.highScores[difficulty].sort(lambda a, b: {True: -1, False: 1}[a[0] > b[0]])
+      self.highScores[difficulty] = self.highScores[difficulty][:5]
     for i, scores in enumerate(self.highScores[difficulty]):
       _score, _stars, _name = scores
       if _score == score and _stars == stars and _name == name:

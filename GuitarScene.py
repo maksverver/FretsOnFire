@@ -33,6 +33,8 @@ import View
 import Audio
 import Stage
 import Settings
+import plugins
+import Log
 
 import math
 import pygame
@@ -147,6 +149,9 @@ class GuitarSceneClient(GuitarScene, SceneClient):
     self.enteredCode     = []
     self.autoPlay        = False
     self.engine.collectGarbage()
+    #Restart plugins
+    self.plugins = plugins.load()
+    #Reset song speed
     
     if not self.song:
       return
@@ -505,5 +510,17 @@ class GuitarSceneClient(GuitarScene, SceneClient):
               text = _(event.text)
               w, h = font.getStringSize(text)
               font.render(text, (.5 - w / 2, .67))
+
+      for p in self.plugins:
+        try:
+	  try:
+            p.render(self)
+	  except Exception, e:
+	    Log.error(e)
+	    raise e
+	except:
+	  Log.error('Module "%s" sucks -- removed from plug-in list' % p.__class__)
+	  self.plugins.remove(p)
+
     finally:
       self.engine.view.resetProjection()
