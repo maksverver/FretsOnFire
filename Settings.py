@@ -26,6 +26,7 @@ import Dialogs
 import Config
 import Mod
 import Audio
+import plugins
 
 import pygame
 
@@ -123,11 +124,38 @@ class KeyConfigChoice(Menu.Choice):
 
   def apply(self):
     pass
+    
+class PluginConfigChoice(ConfigChoice):
+  def __init__(self, engine, config, plugin):
+    ConfigChoice.__init__(self, config, "plugins", "plugin_" + str(plugin.__class__), autoApply = True)
+    self.engine      = engine
+    self.subSettings = plugin.getConfigChoices(config)
+    self.value = config.get(self.section, self.option)    
+    
+  def change(self, value):
+    o = self.config.prototype[self.section][self.option]
+    if isinstance(o.options, dict):
+      for k, v in o.options.items():
+        if v == value:
+          value = k
+          break
 
+    #Check if the value has changed. If it hasn't, then user must have pressed enter
+    if self.value == value and not self.subSettings == None:
+      self.engine.view.pushLayer(Menu.Menu(self.engine, self.subSettings))
+      
+    else:
+      self.value = value
+      self.changed = True
+      self.apply()
 
 class SettingsMenu(Menu.Menu):
   def __init__(self, engine):
     applyItem = [(_("Apply New Settings"), self.applySettings)]
+   
+    pluginSettings = [
+      PluginConfigChoice(engine, engine.config, p) for p in plugins.load(engine.config)
+    ]
 
     modSettings = [
       ConfigChoice(engine.config, "mods",  "mod_" + m) for m in Mod.getAvailableMods(engine)
@@ -195,6 +223,7 @@ class SettingsMenu(Menu.Menu):
       (_("Key Settings"),      keySettingsMenu),
       (_("Video Settings"),    videoSettingsMenu),
       (_("Audio Settings"),    audioSettingsMenu),
+      (_("Plugin settings"),   pluginSettings),
     ]
   
     self.settingsToApply = settings + \
@@ -202,6 +231,7 @@ class SettingsMenu(Menu.Menu):
                            audioSettings + \
                            volumeSettings + \
                            gameSettings + \
+                           pluginSettings + \
                            modSettings
 
     Menu.Menu.__init__(self, engine, settings)
@@ -214,10 +244,18 @@ class SettingsMenu(Menu.Menu):
 
 class GameSettingsMenu(Menu.Menu):
   def __init__(self, engine):
+    
+    #pluginSettings = [
+    #  ConfigChoice(engine.config, "plugins", "plugin_" + str(p.__class__), autoApply = True) for p in plugins.load()
+    #]
+    #Don't know how to apply these settings without restarting the song
+  
     settings = [
+      #(_("Plugin settings"), pluginSettings),
       VolumeConfigChoice(engine, engine.config, "audio",  "guitarvol", autoApply = True),
       VolumeConfigChoice(engine, engine.config, "audio",  "songvol", autoApply = True),
       VolumeConfigChoice(engine, engine.config, "audio",  "rhythmvol", autoApply = True),
       VolumeConfigChoice(engine, engine.config, "audio",  "screwupvol", autoApply = True),
     ]
+    
     Menu.Menu.__init__(self, engine, settings)
