@@ -27,7 +27,7 @@ class new(Plugin):
     if not scene.song:
       return
 
-    if not self.scores:
+    if not self.scores or scene.countdown > 0:
       self.scores = scene.song.info.getHighscores(scene.song.difficulty,100)
       self.p = len(self.scores)-1
 
