@@ -154,10 +154,13 @@ class GuitarSceneClient(GuitarScene, SceneClient):
     self.enteredCode     = []
     self.autoPlay        = False
     self.engine.collectGarbage()
-    #Restart plugins
-    self.plugins = plugins.load(self.engine.config)
-    #Reset song speed
     
+    #Restart plugins
+    self.plugins = []
+    for p in plugins.load(self.engine.config):
+      if not self.engine.config.get("plugins", "plugin_" + str(p.__class__)) == -1:
+        self.plugins.append(p)
+        
     if not self.song:
       return
       
@@ -525,17 +528,19 @@ class GuitarSceneClient(GuitarScene, SceneClient):
               glColor3f(1, 1, 1)
               font.render(b, (.5 - w / 2 + wa, .67))
 
-      for p in self.plugins:
-        try:
+        for p in self.plugins:
           try:
-            p.render(self)
-          except Exception, e:
-            print_exception(*sys.exc_info())
-            Log.error(Exception, e)
-            raise e
-        except:
-          Log.error('Module "%s" sucks -- removed from plug-in list' % p.__class__)
-          self.plugins.remove(p)
+            try:
+              p.render(self)
+            except Exception, e:
+              print_exception(*sys.exc_info())
+              Log.error(Exception, e)
+              raise e
+          except:
+            Log.error('Module "%s" sucks -- removed from plug-in list' % p.__class__)
+            self.plugins.remove(p)
+        
+        plugins.onFrame()
 
     finally:
       self.engine.view.resetProjection()

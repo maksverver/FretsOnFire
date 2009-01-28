@@ -50,6 +50,13 @@ class Font:
     self.font.set_italic(italic)
     self.font.set_underline(underline)
 
+  def getStringSizeDir(self, s, scale = 0.002, direction = (1,0,0)):
+    _,h = self.getStringSize(s, scale)
+    w,_ = self.getStringSize(s[:-1], scale)
+    w2,_ = self.getStringSize(s[-1:], scale)
+    x,y,z = direction
+    return (w*x+w2, w*y+h)
+
   def getStringSize(self, s, scale = 0.002):
     """
     Get the dimensions of a string when rendered with this font.
